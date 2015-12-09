@@ -57,7 +57,7 @@ int main()
 
 		puts("Configuration Load");
 		for(int i=0;i<sz;++i)
-			printf("%5d         %d\n",ans[i].s,ans[i].f);
+			printf("%5d         %-d\n",ans[i].s,ans[i].f);
 
 
 	}
