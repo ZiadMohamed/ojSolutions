@@ -16,20 +16,14 @@ using namespace std;
 int m, tst;
 string arr[23];
 
-int visCheck[23][23][23];
-int visB[23][23][23];
-
 int check(int x,int y,int cur){
-	if(visB[x][y][cur]==tst)return visCheck[x][y][cur];
-
-	visB[x][y][cur]=tst;
 	int i=cur,j=0;
 	while(i<arr[x].size() && j<arr[y].size()){
-		if(arr[x][i]!=arr[y][j])return visCheck[x][y][cur]=-2;
+		if(arr[x][i]!=arr[y][j])return -2;
 		++i;++j;
 	}
-	if(j==int(arr[y].size()))return visCheck[x][y][cur]=-1;
-	return visCheck[x][y][cur]=j;
+	if(j==int(arr[y].size()))return -1;
+	return j;
 }
 
 struct state{
@@ -54,9 +48,12 @@ string dijkstra(){
 	priority_queue<state> q;
 
 	for(int i=0;i<m;++i){
-		q.push(state("",i,0));
-		dist[i][0]="";
-		vis[i][0]=tst;
+		for(int j=0;j<m;++j){
+			if(i==j || check(i,j,0)!=-1)continue;
+			q.push(state(arr[j],i,arr[j].size()));
+			dist[i][arr[j].size()]=arr[j];
+			vis[i][arr[j].size()]=tst;
+		}
 	}
 
 	while(!q.empty()){
@@ -67,7 +64,6 @@ string dijkstra(){
 		if(cur==int(arr[ind].size()))return cost;
 
 		for(int i=0;i<m;++i){
-			if(i==ind && !cur)continue;
 			int c=check(ind,i,cur);
 			if(c==-2)continue;
 
@@ -97,20 +93,14 @@ int main()
 		for(int i=0;i<m;++i)
 			cin>>arr[i];
 
-
 		++tst;
 
 		string ans=dijkstra();
-
-
 		cout<<"Code "<<tst<<": "<<ans.size()<<" bits\n";
 
 
-		for(int i=0,ii=0;i<ans.size();++i,++ii){
-			if(ii==20)cout<<"\n",ii=0;
-			cout<<ans[i];
-		}
-		cout<<"\n\n";
+		for(int i=0;i<ans.size();i+=20)cout<<ans.substr(i,20)<<"\n";
+		cout<<"\n";
 	}
 	return 0;
 }
