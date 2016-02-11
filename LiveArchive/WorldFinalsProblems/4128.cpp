@@ -38,6 +38,7 @@ int dijkstra(){
 
 	priority_queue<node> q;
 	q.push(node(0,r1,c1,4,0));
+	dist[r1][c1][4][0]=0;
 
 	while(!q.empty()){
 		node nd=q.top();
