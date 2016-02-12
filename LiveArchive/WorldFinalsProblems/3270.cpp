@@ -21,20 +21,21 @@ typedef complex<double> point;
 #define length(v) ((double)hypot((v).Y, (v).X))
 
 
-double pointSegmentDist(const point &a, const point &b,const point &p){
-	if(dot(vec(a,b),vec(a,p)) < EPS)
-		return length(vec(a,p));
+point pointSegmentDist(const point &a, const point &b,const point &p){
+	double l=((b.Y-a.Y)*(b.Y-a.Y)) + ((b.X-a.X)*(b.X-a.X));
+	double t=dot(vec(a,b), vec(a,p)) / l;
+	if(t+EPS<0.0)return a;
+	else if(t-EPS>1.0)return b;
 
-	if(dot(vec(b,a),vec(b,p)) < EPS)
-		return length(vec(b,p));
-
-	return fabs(cross(vec(a,b),vec(a,p)) / length(vec(a,b)));
+	return a+t*vec(a,b);
 }
 
-
+point strt;
+bool comp(point a, point b){
+	return length(vec(strt,a))+EPS<length(vec(strt,b));
+}
 
 point bts[51], city[51];
-pair<int,double> closest[51];
 vector< pair<int,int> > adj[51];
 int dist[51], visDist[51], ID;
 
@@ -79,24 +80,29 @@ int main()
 			adj[i].clear();
 		}
 
-		for(int i=0;i<n;++i){
-			for(int j=0;j<b;++j){
-				double d=length(vec(city[i],bts[j]));
-				if(!j || d+EPS<closest[i].s)
-					closest[i].s=d, closest[i].f=j;
-			}
-		}
-
 		int x,y;
 		for(int i=0;i<m;++i){
 			scanf("%d %d",&x,&y);
 			--x;--y;
 
-			int switches=(closest[x].f!=closest[y].f);
-			for(int j=0;j<b;++j){
-				if(j==closest[x].f || j==closest[y].f)continue;
-				double d=pointSegmentDist(city[x],city[y],bts[j]);
-				if(d+EPS<closest[x].s && d+EPS<closest[y].s)++switches;
+			vector<point> v{city[x],city[y]};
+			for(int j=0;j<b;++j)
+				v.pb(pointSegmentDist(city[x],city[y],bts[j]));
+
+			strt=city[x];sort(all(v),comp);
+
+
+			int switches=0,cur=-1;
+
+			for(point p:v){
+				double mn=0,ind=-1;
+				for(int j=0;j<b;++j){
+					double d=length(vec(p,bts[j]));
+					if(ind==-1 || d+EPS<mn)
+						mn=d, ind=j;
+				}
+				if(cur!=-1 && cur!=ind)++switches;
+				cur=ind;
 			}
 
 			adj[x].pb(mp(y,switches));
